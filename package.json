@@ -34,7 +34,7 @@
   "scripts": {
     "start": "PORT=8081 react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --json --outputFile=testReport.json --watchAll=false",
+    "test": "git config --local merge.autoselect-nonempty.driver '__CRIO__/merge_drivers/autoselect-nonempty %O %A %B %P' && react-scripts test --json --outputFile=testReport.json --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

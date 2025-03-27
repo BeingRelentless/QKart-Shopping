@@ -38,3 +38,6 @@ src/__tests__/Cart.test.js merge=copy-merge
 src/__tests__/Checkout.test.js merge=copy-merge
 src/__tests__/Products.test.js merge=copy-merge
 src/__tests__/ProductCard.test.js merge=copy-merge
+
+# Eliminate merge conflicts where one side is empty
+src/components/** merge=autoselect-nonempty

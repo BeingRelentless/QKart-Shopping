@@ -56,5 +56,11 @@
 @media screen and (min-width: 768px) {
   .form {
     min-width: 24rem;
+    
+
+  }
+  .content {
+    justify-content: flex-end;   /* Push form to right end */
+    align-items: center;         /* Keep vertically centered */
   }
 }

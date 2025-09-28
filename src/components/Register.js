@@ -2,7 +2,7 @@ import { Button, CircularProgress, Stack, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
@@ -10,7 +10,22 @@ import "./Register.css";
 
 const Register = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [loading, setLoading] = useState(false)
 
+  const changeHandler = (event) => {
+    setFormData((prev) => {
+      return { ...prev, [event.target.name]: event.target.value };
+    });
+  };
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
@@ -36,6 +51,38 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
+    // console.log(formData)
+    setLoading(true)
+    setFormData((prev) => {
+      return {
+        ...prev,
+        username: prev.username.trim(),
+      };
+    });
+    if (!validateInput(formData)) return;
+    try {
+      const res = await axios.post(`${config.endpoint}/auth/register`, {
+        username: formData.username,
+        password: formData.password,
+      });
+      if (res.status === 201) {
+        enqueueSnackbar("Registered successfully!", { variant: "success" });
+      }
+    } catch (err) {
+      if (err.response && err.response.data.message) {
+        enqueueSnackbar(err.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar("Something went wrong", { variant: "error" });
+      }
+    }finally{
+      setLoading(false)
+    }
+    
+    setFormData({
+      username:"",
+      password:"",
+      confirmPassword:""
+    })
   };
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
@@ -57,6 +104,38 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+    const username = data.username.trim();
+
+    if (!username) {
+      enqueueSnackbar("Username is a required field", { variant: "warning" });
+      return false;
+    }
+
+    if (username.length < 6) {
+      enqueueSnackbar("Username must be at least 6 characters", {
+        variant: "warning",
+      });
+      return false;
+    }
+
+    if (!data.password) {
+      enqueueSnackbar("Password is a required field", { variant: "warning" });
+      return false;
+    }
+
+    if (data.password.length < 6) {
+      enqueueSnackbar("Password must be at least 6 characters", {
+        variant: "warning",
+      });
+      return false;
+    }
+
+    if (data.password !== data.confirmPassword) {
+      enqueueSnackbar("Passwords do not match", { variant: "warning" });
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -76,6 +155,8 @@ const Register = () => {
             variant="outlined"
             title="Username"
             name="username"
+            value={formData.username}
+            onChange={changeHandler}
             placeholder="Enter Username"
             fullWidth
           />
@@ -84,6 +165,8 @@ const Register = () => {
             variant="outlined"
             label="Password"
             name="password"
+            value={formData.password}
+            onChange={changeHandler}
             type="password"
             helperText="Password must be atleast 6 characters length"
             fullWidth
@@ -94,17 +177,25 @@ const Register = () => {
             variant="outlined"
             label="Confirm Password"
             name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={changeHandler}
             type="password"
             fullWidth
           />
-           <Button className="button" variant="contained">
-            Register Now
-           </Button>
+          <Button
+            className="button"
+            variant="contained"
+            type="submit"
+            onClick={() => register(formData)}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} color="inherit"/>:"Register now"}
+          </Button>
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+            <a className="link" href="#">
               Login here
-             </a>
+            </a>
           </p>
         </Stack>
       </Box>

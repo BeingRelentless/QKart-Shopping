@@ -17,6 +17,9 @@ import "./Products.css";
 
 
 const Products = () => {
+  const token = localStorage.getItem("token")
+  const isLoggedIn = !!token
+
 
 
 
@@ -27,7 +30,8 @@ const Products = () => {
   return (
     <div>
       <Header>
-
+        {isLoggedIn ? (<>
+        </>) : (<></>)}
       </Header>
 
        <Grid container>

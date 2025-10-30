@@ -21,7 +21,7 @@ function App() {
           <Register />
         </Route>
         <Route path="/">
-          <Login /> {/* default route */}
+          <Products />
         </Route>
       </Switch>
     </BrowserRouter>

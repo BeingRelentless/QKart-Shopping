@@ -22,7 +22,7 @@ const Header = ({ hasHiddenAuthButtons }) => {
       {/* Logo */}
       <Box
         className="header-title"
-        onClick={() => history.push("/products")}
+        onClick={() => history.push("/")}
         style={{ cursor: "pointer" }}
       >
         <img src="logo_light.svg" alt="QKart-icon" />
@@ -34,7 +34,7 @@ const Header = ({ hasHiddenAuthButtons }) => {
           className="explore-button"
           startIcon={<ArrowBackIcon />}
           variant="text"
-          onClick={() => history.push("/products")}
+          onClick={() => history.push("/")}
         >
           Back to explore
         </Button>

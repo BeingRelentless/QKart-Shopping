@@ -3,12 +3,14 @@ import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
+import { useHistory, Link } from "react-router-dom";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
 
 const Register = () => {
+  const history = useHistory()
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     username: "",
@@ -23,9 +25,9 @@ const Register = () => {
     });
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  // useEffect(() => {
+  //   console.log(formData);
+  // }, [formData]);
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
@@ -51,15 +53,15 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
+   
     // console.log(formData)
     setLoading(true)
-    setFormData((prev) => {
-      return {
-        ...prev,
-        username: prev.username.trim(),
-      };
-    });
-    if (!validateInput(formData)) return;
+    const trimmedData = {
+      ...formData,
+      username: formData.username.trim(),
+    };
+    
+    if (!validateInput(trimmedData)) return;
     try {
       const res = await axios.post(`${config.endpoint}/auth/register`, {
         username: formData.username,
@@ -67,7 +69,9 @@ const Register = () => {
       });
       if (res.status === 201) {
         enqueueSnackbar("Registered successfully!", { variant: "success" });
+        history.push("/login");
       }
+      
     } catch (err) {
       if (err.response && err.response.data.message) {
         enqueueSnackbar(err.response.data.message, { variant: "error" });
@@ -192,11 +196,11 @@ const Register = () => {
             {loading ? <CircularProgress size={24} color="inherit"/>:"Register now"}
           </Button>
           <p className="secondary-action">
-            Already have an account?{" "}
-            <a className="link" href="#">
-              Login here
-            </a>
-          </p>
+  Already have an account?{" "}
+  <Link className="link" to="/login">
+    Login here
+  </Link>
+</p>
         </Stack>
       </Box>
       <Footer />

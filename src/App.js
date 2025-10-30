@@ -1,17 +1,30 @@
 import Register from "./components/Register";
 import ipConfig from "./ipConfig.json";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import Login from "./components/Login";
+import Products from "./components/Products";
+
+
 
 export const config = {
   endpoint: `http://${ipConfig.workspaceIp}:8082/api/v1`,
 };
 
 function App() {
-  console.log("hello")
   return (
-    <div className="App">
+    <BrowserRouter>
+      <Switch>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <Route path="/register">
           <Register />
-          
-    </div>
+        </Route>
+        <Route path="/">
+          <Login /> {/* default route */}
+        </Route>
+      </Switch>
+    </BrowserRouter>
   );
 }
 

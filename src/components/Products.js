@@ -14,14 +14,6 @@ import Footer from "./Footer";
 import Header from "./Header";
 import "./Products.css";
 
-<<<<<<< ours
-
-
-const Products = () => {
-  const token = localStorage.getItem("token")
-  const isLoggedIn = !!token
-
-=======
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
@@ -108,7 +100,6 @@ const Products = () => {
    */
   const debounceSearch = (event, debounceTimeout) => {
   };
->>>>>>> theirs
 
 
 
@@ -119,12 +110,6 @@ const Products = () => {
   return (
     <div>
       <Header>
-<<<<<<< ours
-        {isLoggedIn ? (<>
-        </>) : (<></>)}
-      </Header>
-
-=======
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
 
       </Header>
@@ -144,7 +129,6 @@ const Products = () => {
         placeholder="Search for items/categories"
         name="search"
       />
->>>>>>> theirs
        <Grid container>
          <Grid item className="product-grid">
            <Box className="hero">

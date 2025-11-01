@@ -55,6 +55,7 @@ const Login = () => {
    * }
    *
    */
+<<<<<<< ours
    const login = async (formData) => {
     // Validate the user input before sending the request
     if (!validateInput(formData)) return;
@@ -100,6 +101,11 @@ const Login = () => {
   
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Validate the input
+=======
+  const login = async (formData) => {
+  };
+
+>>>>>>> theirs
   /**
    * Validate the input values so that any bad or illegal values are not passed to the backend.
    *
@@ -114,6 +120,7 @@ const Login = () => {
    * -    Check that username field is not an empty value - "Username is a required field"
    * -    Check that password field is not an empty value - "Password is a required field"
    */
+<<<<<<< ours
    const validateInput = () => {
     if (!formData.username) {
       enqueueSnackbar("Username is a required field", { variant: "warning" });
@@ -130,6 +137,11 @@ const Login = () => {
   
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Persist user's login information
+=======
+  const validateInput = (data) => {
+  };
+
+>>>>>>> theirs
   /**
    * Store the login information so that it can be used to identify the user in subsequent API calls
    *
@@ -145,10 +157,14 @@ const Login = () => {
    * -    `username` field in localStorage can be used to store the username that the user is logged in as
    * -    `balance` field in localStorage can be used to store the balance amount in the user's wallet
    */
+<<<<<<< ours
    const persistLogin = (token, username, balance) => {
     localStorage.setItem("token", token);
     localStorage.setItem("username", username);
     localStorage.setItem("balance", balance);
+=======
+  const persistLogin = (token, username, balance) => {
+>>>>>>> theirs
   };
 
   return (
@@ -158,6 +174,7 @@ const Login = () => {
       justifyContent="space-between"
       minHeight="100vh"
     >
+<<<<<<< ours
       {/* Header Section */}
       <Header hasHiddenAuthButtons />
 
@@ -214,6 +231,13 @@ const Login = () => {
       </Box>
 
       {/* Footer */}
+=======
+      <Header hasHiddenAuthButtons />
+      <Box className="content">
+        <Stack spacing={2} className="form">
+        </Stack>
+      </Box>
+>>>>>>> theirs
       <Footer />
     </Box>
   );

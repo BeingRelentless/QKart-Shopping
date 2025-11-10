@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import React from "react";
 import "./Header.css";
 
-const Header = ({ hasHiddenAuthButtons }) => {
+const Header = ({ hasHiddenAuthButtons, children }) => {
   const history = useHistory();
 
   // Check if user is logged in
@@ -27,6 +27,7 @@ const Header = ({ hasHiddenAuthButtons }) => {
       >
         <img src="logo_light.svg" alt="QKart-icon" />
       </Box>
+      {children && <Box className="header-children">{children}</Box>}
 
       {/* If header has hidden auth buttons (for login/register pages) */}
       {hasHiddenAuthButtons ? (

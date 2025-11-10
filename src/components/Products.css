@@ -9,7 +9,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 10rem;
+  height: 15rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,5 +68,6 @@
   }
   .search-desktop {
     display: block !important;
+    
   }
 }

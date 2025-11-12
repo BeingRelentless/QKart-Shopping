@@ -69,7 +69,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
           color="success"
           startIcon={<AddShoppingCartOutlined />}
           className="card-button"
-          onClick={() => handleAddToCart?.(product)}
+          onClick={() => handleAddToCart(product)}
           sx={{
             width: "90%",
             py: 1,

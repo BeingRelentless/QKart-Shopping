@@ -72,6 +72,7 @@ const Login = () => {
       // If login is successful
       if (response.status === 201) {
         enqueueSnackbar("Logged in successfully!", { variant: "success" });
+        console.log(response.data)
 
         // Store token, username, and balance in localStorage
         persistLogin(
@@ -145,7 +146,9 @@ const Login = () => {
    * -    `username` field in localStorage can be used to store the username that the user is logged in as
    * -    `balance` field in localStorage can be used to store the balance amount in the user's wallet
    */
+   
    const persistLogin = (token, username, balance) => {
+    // console.log('persist login', token)
     localStorage.setItem("token", token);
     localStorage.setItem("username", username);
     localStorage.setItem("balance", balance);

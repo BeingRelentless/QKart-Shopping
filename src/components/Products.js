@@ -9,12 +9,18 @@ import {
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
+
 import React, { useEffect, useState } from "react";
 import { config } from "../App";
+// console.log("API endpoint is:", config.endpoint);
+import Cart, { generateCartItemsFrom } from "./Cart";
+
 import Footer from "./Footer";
 import Header from "./Header";
 import ProductCard from "./ProductCard";
 import "./Products.css";
+// import { isCatchClause } from "typescript";
 
 // Definition of Data Structures used
 /**
@@ -69,6 +75,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar(); // ✅ fixed spelling
+  const history = useHistory();
 
   const performAPICall = async () => {
     setLoading(true);
@@ -89,6 +96,10 @@ const Products = () => {
   //Run the performAPICall on first render
   useEffect(() => {
     performAPICall();
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchCart();
+    }
   }, []);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
@@ -161,9 +172,64 @@ const Products = () => {
     setDebounceTimeout(newTimeout);
   };
 
+  const [cartData, setCartData] = useState([]);
+
+  const fetchCart = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get(`${config.endpoint}/cart`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Cart data:", response.data);
+      setCartData(response.data);
+    } catch (e) {
+      enqueueSnackbar("Failed to fetch cart data!", { variant: "error" });
+    }
+  };
+
+  // fetch cart data on render
+  // useEffect(() => {
+  //   fetchCart();
+  // }, []);
+
   // ✅ Placeholder for cart handling
+  // Unified backend logic
+  const handleQuantity = async (productId, qty) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      enqueueSnackbar("Login to modify cart!", { variant: "error" });
+      history.push("/login");
+      return;
+    }
+
+    try {
+      if (qty < 1) {
+        qty = 0; // backend removes the item if qty = 0
+      }
+
+      const response = await axios.post(
+        `${config.endpoint}/cart`,
+        { productId, qty },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setCartData(response.data);
+    } catch (error) {
+      enqueueSnackbar("Failed to update cart!", { variant: "error" });
+    }
+  };
+
+  // Add to cart just reuses the above logic
   const handleAddToCart = (product) => {
-    enqueueSnackbar(`${product.name} added to cart!`, { variant: "success" });
+    const existingItem = cartData.find(
+      (item) => item.productId === product._id
+    );
+    const newQty = existingItem ? existingItem.qty + 1 : 1;
+    handleQuantity(product._id, newQty);
   };
 
   return (
@@ -211,6 +277,7 @@ const Products = () => {
       </Box>
 
       {/* ---------- PRODUCT SECTION ---------- */}
+      {/* ---------- PRODUCT & CART SECTION ---------- */}
       {loading ? (
         // 🌀 Loader while fetching products
         <Box className="loading">
@@ -219,36 +286,61 @@ const Products = () => {
             Loading Products
           </Typography>
         </Box>
-      ) : products.length > 0 ? (
-        // ✅ Display products in a responsive grid
-        <Grid
-          container
-          spacing={2}
-          justifyContent="center"
-          sx={{ padding: "1rem 2rem 4rem" }}
-        >
-          {products.map((product) => (
-            <Grid item key={product._id} xs={6} md={3}>
-              <ProductCard
-                product={product}
-                handleAddToCart={handleAddToCart}
-              />
-            </Grid>
-          ))}
-        </Grid>
       ) : (
-        // ❌ No products found (empty state)
         <Box
-          sx={{
-            textAlign: "center",
-            padding: "4rem",
-            color: "gray",
-          }}
+          display="flex"
+          flexDirection={{ xs: "column", md: "row" }}
+          justifyContent="center"
+          alignItems="flex-start"
+          sx={{ padding: "1rem 2rem 4rem", gap: "2rem" }}
         >
-          <SentimentDissatisfied sx={{ fontSize: 60 }} />
-          <Typography variant="h6" sx={{ mt: 2 }}>
-            No products found
-          </Typography>
+          {/* 🛍️ Products Grid */}
+          {products.length > 0 ? (
+            <Grid
+              container
+              spacing={2}
+              justifyContent="flex-start"
+              sx={{ flex: 1 }}
+            >
+              {products.map((product) => (
+                <Grid item key={product._id} xs={6} md={3}>
+                  <ProductCard
+                    product={product}
+                    handleAddToCart={handleAddToCart}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            // ❌ No products found (empty state)
+            <Box
+              sx={{
+                textAlign: "center",
+                padding: "4rem",
+                color: "gray",
+                flex: 1,
+              }}
+            >
+              <SentimentDissatisfied sx={{ fontSize: 60 }} />
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                No products found
+              </Typography>
+            </Box>
+          )}
+
+          {/* 🛒 Cart Section */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "25%" },
+              mt: { xs: 4, md: 0 },
+            }}
+          >
+            <Cart
+              products={products}
+              items={generateCartItemsFrom(cartData, products)}
+              handleQuantity={handleQuantity}
+            />
+          </Box>
         </Box>
       )}
 

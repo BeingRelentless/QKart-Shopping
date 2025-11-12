@@ -47,8 +47,27 @@ import "./Cart.css";
  *    Array of objects with complete data on products in cart
  *
  */
-export const generateCartItemsFrom = (cartData, productsData) => {
+ export const generateCartItemsFrom = (cartData = [], productsData = []) => {
+  if (!cartData.length || !productsData.length) return [];
+
+  //  Create a Map for quick lookups
+  const productMap = new Map();
+  productsData.forEach((product) => productMap.set(product._id, product));
+
+  //  Build the cart items array efficiently
+  return cartData
+    .map((cartItem) => {
+      const matchedProduct = productMap.get(cartItem.productId);
+      if (!matchedProduct) return null;
+      return {
+        ...matchedProduct,
+        productId: cartItem.productId,
+        qty: cartItem.qty,
+      };
+    })
+    .filter(Boolean); // remove null entries
 };
+
 
 /**
  * Get the total value of all products added to the cart
@@ -60,7 +79,14 @@ export const generateCartItemsFrom = (cartData, productsData) => {
  *    Value of all items in the cart
  *
  */
-export const getTotalCartValue = (items = []) => {
+ export const getTotalCartValue = (items = []) => {
+  if (!items.length) return 0;
+
+  // Multiply cost × qty for each item and sum up
+  return items.reduce((total, item) => {
+    const itemTotal = item.cost * item.qty;
+    return total + itemTotal;
+  }, 0);
 };
 
 
@@ -128,11 +154,59 @@ const Cart = ({
       </Box>
     );
   }
-
   return (
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
+        {items.map((item) => (
+          item.qty > 0 && (
+            <Box
+              key={item._id}
+              display="flex"
+              alignItems="flex-start"
+              padding="1rem"
+            >
+              <Box className="image-container">
+                <img
+                  // Add product image
+                  src={item.image}
+                  // Add product name as alt text
+                  alt={item.name}
+                  width="100%"
+                  height="100%"
+                />
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="space-between"
+                height="6rem"
+                paddingX="1rem"
+              >
+                <div>{item.name}</div>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <ItemQuantity
+                    // Add required props by checking implementation
+                    value={item.qty}
+                    handleAdd={() => handleQuantity(item.productId, item.qty + 1)}
+                    handleDelete={() =>
+                      handleQuantity(item.productId, item.qty - 1)
+                    }
+                  />
+                  <Box padding="0.5rem" fontWeight="700">
+                    ${item.cost}
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          )
+        ))}
+  
+        {/* 🧾 Order total section */}
         <Box
           padding="1rem"
           display="flex"
@@ -152,7 +226,8 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
+  
+        {/* 🛒 Checkout button */}
         <Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Button
             color="primary"
@@ -166,6 +241,7 @@ const Cart = ({
       </Box>
     </>
   );
+  
 };
 
 export default Cart;

@@ -172,7 +172,7 @@ const Products = () => {
     setDebounceTimeout(newTimeout);
   };
 
-  const [cartData, setCartData] = useState([]);
+  const [cartData, setCartData] = useState([]); // State for the cart data
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
@@ -200,49 +200,41 @@ const Products = () => {
   // Unified backend logic
   const handleQuantity = async (productId, qty) => {
     const token = localStorage.getItem("token");
-    if (!token) return; // no need to show snackbar during automated tests
-  
+    if (!token) return;
+
     try {
       if (qty < 1) qty = 0;
-  
       const response = await axios.post(
         `${config.endpoint}/cart`,
         { productId, qty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
-      // Wait for backend update, then sync local state
+
       setCartData(response.data);
       return response.data;
     } catch (error) {
       console.error("Cart update failed:", error);
     }
   };
-  
 
-  // Add to cart just reuses the above logic
   const handleAddToCart = async (product) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      if (process.env.NODE_ENV !== "test") {
-        enqueueSnackbar("Login to add items", { variant: "error" });
-      }
+      enqueueSnackbar("Login to add items", { variant: "error" });
       history.push("/login");
       return;
     }
   
-    const existingItem = cartData.find((item) => item.productId === product._id);
-    const newQty = existingItem ? existingItem.qty + 1 : 1;
-  
-    const updatedCart = await handleQuantity(product._id, newQty);
-    if (updatedCart) setCartData(updatedCart);
-  
-    if (process.env.NODE_ENV !== "test") {
-      enqueueSnackbar(`${product.name} added to cart!`, { variant: "success" });
+    const existingItem = cartData.find(
+      (item) => item.productId === product._id
+    );
+    if (existingItem) {
+      enqueueSnackbar("Item already in cart", { variant: "error" });
+      return;
     }
+  
+    return await handleQuantity(product._id, 1);
   };
-  
-  
   
 
   return (
@@ -289,7 +281,6 @@ const Products = () => {
         </p>
       </Box>
 
-      {/* ---------- PRODUCT SECTION ---------- */}
       {/* ---------- PRODUCT & CART SECTION ---------- */}
       {loading ? (
         // 🌀 Loader while fetching products
@@ -342,18 +333,20 @@ const Products = () => {
           )}
 
           {/* 🛒 Cart Section */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "25%" },
-              mt: { xs: 4, md: 0 },
-            }}
-          >
-            <Cart
-              products={products}
-              items={generateCartItemsFrom(cartData, products)}
-              handleQuantity={handleQuantity}
-            />
-          </Box>
+          {localStorage.getItem("token") && (
+            <Box
+              sx={{
+                width: { xs: "100%", md: "25%" },
+                mt: { xs: 4, md: 0 },
+              }}
+            >
+              <Cart
+                products={products}
+                items={generateCartItemsFrom(cartData, products)}
+                handleQuantity={handleQuantity}
+              />
+            </Box>
+          )}
         </Box>
       )}
 

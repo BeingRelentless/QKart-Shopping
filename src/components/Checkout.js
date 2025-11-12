@@ -31,7 +31,7 @@ import Header from "./Header";
  */
 
 /**
- * @typedef {Object} CartItem -  - Data on product added to cart
+ * @typedef {Object} CartItem - Data on product added to cart
  *
  * @property {string} name - The name or title of the product in cart
  * @property {string} qty - The quantity of product added to cart
@@ -42,17 +42,51 @@ import Header from "./Header";
  * @property {string} productId - Unique ID for the product
  */
 
-
-
 const Checkout = () => {
+  const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
 
+  // ✅ Define states for products and cart items
+  const [products, setProducts] = useState([]);
+  const [cartData, setCartData] = useState([]);
 
+  // Derived cart items with product details
+  const items = generateCartItemsFrom(cartData, products);
 
+  // ✅ Fetch products
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${config.endpoint}/products`);
+      setProducts(response.data);
+    } catch (e) {
+      enqueueSnackbar("Could not fetch products", { variant: "error" });
+    }
+  };
 
+  // ✅ Fetch cart data
+  const fetchCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      enqueueSnackbar("Login to access checkout!", { variant: "error" });
+      history.push("/login");
+      return;
+    }
 
+    try {
+      const response = await axios.get(`${config.endpoint}/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartData(response.data);
+    } catch (e) {
+      enqueueSnackbar("Could not fetch cart details", { variant: "error" });
+    }
+  };
 
-
-
+  // ✅ Fetch data on mount
+  useEffect(() => {
+    fetchProducts();
+    fetchCart();
+  }, []);
 
   return (
     <>
@@ -69,9 +103,7 @@ const Checkout = () => {
               Select the address you want to get your order delivered.
             </Typography>
             <Divider />
-            <Box>
-            </Box>
-
+            <Box></Box>
 
             <Typography color="#3C3C3C" variant="h4" my="1rem">
               Payment
@@ -97,7 +129,9 @@ const Checkout = () => {
             </Button>
           </Box>
         </Grid>
+
         <Grid item xs={12} md={3} bgcolor="#E9F5E1">
+          {/* ✅ Use generated items and products */}
           <Cart isReadOnly products={products} items={items} />
         </Grid>
       </Grid>

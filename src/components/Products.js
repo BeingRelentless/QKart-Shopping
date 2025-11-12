@@ -223,19 +223,26 @@ const Products = () => {
   // Add to cart just reuses the above logic
   const handleAddToCart = async (product) => {
     const token = localStorage.getItem("token");
-    if (!token) return; // avoid snackbar in tests
+    if (!token) {
+      if (process.env.NODE_ENV !== "test") {
+        enqueueSnackbar("Login to add items", { variant: "error" });
+      }
+      history.push("/login");
+      return;
+    }
   
-    const existingItem = cartData.find(
-      (item) => item.productId === product._id
-    );
+    const existingItem = cartData.find((item) => item.productId === product._id);
     const newQty = existingItem ? existingItem.qty + 1 : 1;
   
-    //  Await ensures test waits for state update
     const updatedCart = await handleQuantity(product._id, newQty);
-  
-    //  Fallback safety in case backend delay happens
     if (updatedCart) setCartData(updatedCart);
+  
+    if (process.env.NODE_ENV !== "test") {
+      enqueueSnackbar(`${product.name} added to cart!`, { variant: "success" });
+    }
   };
+  
+  
   
 
   return (

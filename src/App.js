@@ -13,13 +13,16 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <Switch>
-          <Route path="/login">
+          <Route path="/login" exact>
             <Login />
           </Route>
-          <Route path="/register">
+          <Route path="/register" exact>
             <Register />
           </Route>
-          <Route path="/">
+          <Route path="/checkout" exact>
+            <Checkout />
+          </Route>
+          <Route path="/" exact>
             <Products />
           </Route>
         </Switch>
@@ -27,5 +30,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;

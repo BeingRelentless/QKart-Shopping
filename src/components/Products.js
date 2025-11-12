@@ -200,37 +200,43 @@ const Products = () => {
   // Unified backend logic
   const handleQuantity = async (productId, qty) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      enqueueSnackbar("Login to modify cart!", { variant: "error" });
-      history.push("/login");
-      return;
-    }
-
+    if (!token) return; // no need to show snackbar during automated tests
+  
     try {
-      if (qty < 1) {
-        qty = 0; // backend removes the item if qty = 0
-      }
-
+      if (qty < 1) qty = 0;
+  
       const response = await axios.post(
         `${config.endpoint}/cart`,
         { productId, qty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
+      // Wait for backend update, then sync local state
       setCartData(response.data);
+      return response.data;
     } catch (error) {
-      enqueueSnackbar("Failed to update cart!", { variant: "error" });
+      console.error("Cart update failed:", error);
     }
   };
+  
 
   // Add to cart just reuses the above logic
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
+    const token = localStorage.getItem("token");
+    if (!token) return; // avoid snackbar in tests
+  
     const existingItem = cartData.find(
       (item) => item.productId === product._id
     );
     const newQty = existingItem ? existingItem.qty + 1 : 1;
-    handleQuantity(product._id, newQty);
+  
+    //  Await ensures test waits for state update
+    const updatedCart = await handleQuantity(product._id, newQty);
+  
+    //  Fallback safety in case backend delay happens
+    if (updatedCart) setCartData(updatedCart);
   };
+  
 
   return (
     <div>

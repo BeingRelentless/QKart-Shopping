@@ -234,7 +234,8 @@ const Cart = ({
             variant="contained"
             startIcon={<ShoppingCart />}
             className="checkout-btn"
-          >
+            onClick={() => history.push("/checkout")}
+            >
             Checkout
           </Button>
         </Box>

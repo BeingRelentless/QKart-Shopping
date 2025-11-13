@@ -17,6 +17,8 @@ app.use('/api/v1/cart', cartRouter);
 app.use('/api/v1/user', userRouter);
 
 const port = process.env.PORT || config.port
+const JWT_SECRET = process.env.JWT_SECRET || config.jwtSecret;
+
 app.listen(port, () => {
     console.log(`QKart Backend running at port ${port}`);
 });

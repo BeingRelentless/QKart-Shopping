@@ -35,6 +35,7 @@ const Header = ({ hasHiddenAuthButtons, children }) => {
           className="explore-button"
           startIcon={<ArrowBackIcon />}
           variant="text"
+          sx={{ color: "#00A278" }}
           onClick={() => history.push("/")}
         >
           Back to explore
@@ -48,8 +49,16 @@ const Header = ({ hasHiddenAuthButtons, children }) => {
               <Avatar alt={user} src="/avatar.png" />
               <Box>{user}</Box>
               <Button
-                color="secondary"
-                variant="contained"
+                sx={{
+                  color: "#00A278",
+                  borderColor: "#00A278",
+                  "&:hover": {
+                    backgroundColor: "#00A278",
+                    color: "#fff",
+                    borderColor: "#00A278",
+                  },
+                }}
+                variant="outlined"
                 onClick={handleLogout}
               >
                 Logout

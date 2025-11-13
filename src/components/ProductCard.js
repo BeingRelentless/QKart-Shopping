@@ -71,12 +71,18 @@ const ProductCard = ({ product, handleAddToCart }) => {
           className="card-button"
           onClick={() => handleAddToCart(product)}
           sx={{
-            width: "90%",
-            py: 1,
-            borderRadius: 1.5,
-            backgroundColor: "#2E7D32",
-            "&:hover": { backgroundColor: "#256928" },
+            mt: 1,
+            borderRadius: 2,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            backgroundColor: "#00A278",
+            color: "#fff",
+            transition: "transform 0.2s ease-in-out, background-color 0.2s ease-in-out",
+            "&:hover": {
+              transform: "scale(1.02)",
+              backgroundColor: "#00A278", // keep same green
+            },
           }}
+          
         >
           ADD TO CART
         </Button>

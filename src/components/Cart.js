@@ -7,6 +7,7 @@ import {
 import { Button, IconButton, Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
+import { useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
 import "./Cart.css";
 
@@ -134,6 +135,8 @@ const ItemQuantity = ({ value, handleAdd, handleDelete }) => {
 
 const Cart = ({ products, items = [], handleQuantity, isReadOnly = false }) => {
   const history = useHistory();
+  const { enqueueSnackbar } = useSnackbar(); 
+
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -297,7 +300,15 @@ const Cart = ({ products, items = [], handleQuantity, isReadOnly = false }) => {
                 backgroundColor: "#00A278",
                 "&:hover": { backgroundColor: "#008c65" },
               }}
-              onClick={() => history.push("/checkout")}
+              onClick={() => {
+                const token = localStorage.getItem('token')
+                if(token){
+                  history.push("/checkout")
+                }else{
+                  enqueueSnackbar("Login to place order", {variant : "error"})
+                  history.push("/login")
+                }
+              }}
             >
               Checkout
             </Button>

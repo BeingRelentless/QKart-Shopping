@@ -74,7 +74,7 @@ const Products = () => {
    */
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { enqueueSnackbar } = useSnackbar(); // ✅ fixed spelling
+  const { enqueueSnackbar } = useSnackbar(); 
   const history = useHistory();
 
   const performAPICall = async () => {
@@ -95,12 +95,13 @@ const Products = () => {
 
   //Run the performAPICall on first render
   useEffect(() => {
-    performAPICall();
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchCart();
-    }
+    const loadData = async () => {
+      await performAPICall(); // ensure products are loaded first
+      await fetchCart();      // then load guest/backend cart
+    };
+    loadData();
   }, []);
+  
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
   /**
@@ -177,14 +178,19 @@ const Products = () => {
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
 
+    if (!token) {
+      // 🧩 Load from localStorage for guest users
+      const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
+      setCartData(guestCart);
+      return;
+    }
+
     try {
       const response = await axios.get(`${config.endpoint}/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log("Cart data:", response.data);
       setCartData(response.data);
     } catch (e) {
       enqueueSnackbar("Failed to fetch cart data!", { variant: "error" });
@@ -219,21 +225,34 @@ const Products = () => {
 
   const handleAddToCart = async (product) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      enqueueSnackbar("Login to add items", { variant: "error" });
-      history.push("/login");
+
+    // --- ✅ CASE 1: Logged-in user (keep current behavior)
+    if (token) {
+      const existingItem = cartData.find(
+        (item) => item.productId === product._id
+      );
+      if (existingItem) {
+        enqueueSnackbar("Item already in cart", { variant: "info" });
+        return;
+      }
+      return await handleQuantity(product._id, 1);
+    }
+
+    // --- ✅ CASE 2: Guest user (store in localStorage)
+    const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
+
+    const exists = guestCart.find((item) => item.productId === product._id);
+    if (exists) {
+      enqueueSnackbar("Item already in cart", { variant: "info" });
       return;
     }
 
-    const existingItem = cartData.find(
-      (item) => item.productId === product._id
-    );
-    if (existingItem) {
-      enqueueSnackbar("Item already in cart", { variant: "error" });
-      return;
-    }
+    guestCart.push({ productId: product._id, qty: 1 });
+    localStorage.setItem("guestCart", JSON.stringify(guestCart));
 
-    return await handleQuantity(product._id, 1);
+    enqueueSnackbar("Item added to cart!", { variant: "success" });
+    setCartData(guestCart); // instantly refresh UI
+
   };
 
   return (
@@ -332,23 +351,20 @@ const Products = () => {
           )}
 
           {/* 🛒 Cart Section */}
-          {localStorage.getItem("token") && (
-            <Box
-              sx={{
-                width: { xs: "100%", md: "25%" },
-                mt: { xs: 4, md: 0 },
-                // bgcolor: "#E9F5E1",
-                alignSelf: "flex-start", // ✅ keeps cart at top
-                height: "auto", // ✅ takes only needed space
-              }}
-            >
-              <Cart
-                products={products}
-                items={generateCartItemsFrom(cartData, products)}
-                handleQuantity={handleQuantity}
-              />
-            </Box>
-          )}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "25%" },
+              mt: { xs: 4, md: 0 },
+              alignSelf: "flex-start",
+              height: "auto",
+            }}
+          >
+            <Cart
+              products={products}
+              items={generateCartItemsFrom(cartData, products)}
+              handleQuantity={handleQuantity}
+            />
+          </Box>
         </Box>
       )}
 

@@ -70,12 +70,33 @@ const Header = ({ hasHiddenAuthButtons, children }) => {
               <Button
                 variant="text"
                 onClick={() => history.push("/login")}
+                sx={{
+                  color: "#00A278",
+                  borderColor: "#00A278",
+                  "&:hover": {
+                    backgroundColor: "#00A278",
+                    color: "#fff",
+                    borderColor: "#00A278",
+                  },
+                }}
               >
                 Login
               </Button>
               <Button
                 variant="contained"
                 onClick={() => history.push("/register")}
+                sx={{
+                  backgroundColor: "#00A278",
+                  color: "#fff",
+                  borderColor: "#00A278",
+                  transition: "all 0.2s ease-in-out", // smooth animation
+                  "&:hover": {
+                    backgroundColor: "#008C65", // darker green
+                    transform: "scale(1.05)",   // slight zoom on hover
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)", // add some depth
+                  },
+                }}
+                
               >
                 Register
               </Button>

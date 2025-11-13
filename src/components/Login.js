@@ -30,6 +30,29 @@ const Login = () => {
     }));
   };
 
+  const syncGuestCart = async (token) => {
+    const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
+    if (!guestCart.length) return;
+  
+    try {
+      for (let item of guestCart) {
+        await axios.post(
+          `${config.endpoint}/cart`,
+          { productId: item.productId, qty: item.qty },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
+  
+      localStorage.removeItem("guestCart");
+      console.log("Guest cart synced successfully");
+    } catch (e) {
+      console.error("Failed to sync guest cart:", e);
+    }
+  };
+  
+
   // TODO: CRIO_TASK_MODULE_LOGIN - Fetch the API response
   /**
    * Perform the Login API call
@@ -80,6 +103,8 @@ const Login = () => {
           response.data.username,
           response.data.balance
         );
+
+        await syncGuestCart(response.data.token)
 
         // Redirect to homepage after login
         history.push("/");
